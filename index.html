@@ -25,13 +25,6 @@
   <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
- <div style="position: fixed; top: 10px; right: 10px; z-index: 9999;">
-    <a href="https://drive.google.com/file/d/151fM2hesR100zyHCX4DEi7cRuuTrpBep/view?usp=drivesdk" 
-       style="background-color: #6c5ce7; color: white; padding: 10px 20px; text-decoration: none; border-radius: 50px; font-weight: bold; font-size: 14px; display: inline-block; box-shadow: 0px 4px 15px rgba(0,0,0,0.2);" 
-       target="_blank">
-       Get App
-    </a>
- </div>
   <style>
     /* Anti-screenshot/recording deterrents */
     body {
@@ -768,13 +761,20 @@
   <main class="container">
     <!-- HOME section -->
     <section id="home" class="reveal">
+      <div style="margin-bottom: 20px; text-align: left;">
+    <a href="https://drive.google.com/file/d/151fM2hesR100zyHCX4DEi7cRuuTrpBep/view?usp=drivesdk" 
+       style="background-color: #6c5ce7; color: white; padding: 10px 25px; text-decoration: none; border-radius: 50px; font-weight: bold; font-size: 14px; display: inline-block; box-shadow: 0px 4px 15px rgba(108, 92, 231, 0.3);" 
+       target="_blank">
+       Get App
+    </a>
+      </div>
       <h2>Imagine. Create. Order.</h2>
       <p style="font-size:1.4rem; max-width:800px;">Time‑pass entertainment meets creative portfolio. Order similar images on WhatsApp, watch 30+ viral videos & Korean dramas, explore books. <br> <i class="fas fa-smile-wink" style="color:var(--accent);"></i></p>
     </section>
 
     <!-- SEARCH BAR -->
     <div class="search-bar reveal">
-      <input type="text" id="searchInput" placeholder="Search gallery images...">
+      <input type="text" id="searchInput" placeholder="Search image & Romantic k drama...">
       <button id="searchBtn"><i class="fas fa-search"></i> Search</button>
     </div>
 
@@ -1065,7 +1065,7 @@
         });
       }
 
-      // Render all 30 videos
+      // Render all videos
       function renderAllVideos() {
         const grid = document.getElementById('allVideosGrid');
         grid.innerHTML = '';
