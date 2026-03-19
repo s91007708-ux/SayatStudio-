@@ -386,9 +386,9 @@
     }
     .private-image-card {
       background: var(--card-bg);
-      border-radius: 20px;
+      border-radius: 22px;
       overflow: hidden;
-      aspect-ratio: 1/1;
+      aspect-ratio: 4/5;
     }
     .private-image-card img {
       width: 100%;
@@ -700,6 +700,12 @@
     .floating-cross:hover {
       transform: scale(1.1);
     }
+    body.blur-active {
+    filter: blur(20px) !important;
+    transition: filter 0.1s ease-in-out;
+    user-select: none;
+    pointer-events: none;
+    }
   </style>
 </head>
 <body>
@@ -769,7 +775,7 @@
     </a>
       </div>
       <h2>Imagine. Create. Order.</h2>
-      <p style="font-size:1.4rem; max-width:800px;">Time‑pass entertainment meets creative portfolio. Order similar images on WhatsApp, watch 30+ viral videos & Korean dramas, explore books. <br> <i class="fas fa-smile-wink" style="color:var(--accent);"></i></p>
+      <p style="font-size:1.4rem; max-width:800px;">Time‑pass entertainment meets creative portfolio. Order similar images on WhatsApp, watch unlimited free viral videos & Korean dramas, explore books. <br> <i class="fas fa-smile-wink" style="color:var(--accent);"></i></p>
     </section>
 
     <!-- SEARCH BAR -->
@@ -879,7 +885,7 @@
       // ---------- CONFIG ----------
       const WHATSAPP_NUMBER = '919734398907';
       const AMAZON_BOOK_LINK = 'https://amzn.in/d/0aTloxFO'; 
-      const VAULT_PASSWORD = '973439';
+      const VAULT_PASSWORD = 'SayatStudio@191251251';
 
       // Google Drive file IDs
       const LOGO_ID = '1wLkU1c_iD50cKlAcyAL-hO27dHz-4GGr';
@@ -971,7 +977,24 @@
 
       // Screenshot warning
       const screenshotWarning = document.getElementById('screenshotWarning');
+    // যখন স্ক্রিনে টাচ করা হবে
+    document.addEventListener('touchstart', function(event) {
+        if (event.touches.length >= 3) {
+            document.body.classList.add('blur-active');
+        }
+    });
 
+    // যখন স্ক্রিন থেকে আঙুল সরিয়ে নেওয়া হবে
+    document.addEventListener('touchend', function(event) {
+        if (event.touches.length < 3) {
+            document.body.classList.remove('blur-active');
+        }
+    });
+
+    // কোনো কারণে টাচ ক্যান্সেল হয়ে গেলে
+    document.addEventListener('touchcancel', function(event) {
+        document.body.classList.remove('blur-active');
+    });
       // Ensure menu is closed on page load (CSS already does, but double-check)
       document.getElementById('sideMenu').classList.remove('open');
 
