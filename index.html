@@ -3,14 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
-  <!-- SEO meta tags -->
   <script type="application/ld+json">
-{
- "@context":"https://schema.org",
- "@type":"WebSite",
- "name":"SayatStudio",
- "url":"https://sayatstudio.netlify.app/"
-}
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "SayatStudio",
+    "url": "https://sayatstudio.netlify.app/"
+  }
   </script>
   <meta name="google-site-verification" content="sfxCICiltHtj_kR3SGuETbVgiCHPOIywDuhQFrr8jdY" />
   <meta name="description" content="Creative portfolio + ordering platform – order similar images via WhatsApp, watch 30+ viral videos & Korean dramas, explore books. Modern glassmorphism UI with dark/light theme & Firebase login.">
@@ -18,15 +17,15 @@
   <meta name="author" content="SayatStudio">
   <meta name="robots" content="index, follow">
   <title>SayatStudio · romantic gallery & videos</title>
-<link rel="icon" type="image/png" href="logo.png">
-<link rel="apple-touch-icon" href="logo.png">
+  <link rel="icon" type="image/png" href="logo.png">
+  <link rel="apple-touch-icon" href="logo.png">
   <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-  <!-- Firebase SDKs -->
+  <!-- Firebase SDKs (compat version) -->
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
   <style>
-    /* Anti-screenshot/recording deterrents */
+    /* --- Anti-screenshot / recording deterrents --- */
     body {
       -webkit-user-select: none;
       -moz-user-select: none;
@@ -38,6 +37,10 @@
       -moz-user-drag: none;
       -o-user-drag: none;
       user-drag: none;
+      overflow-x: hidden;               /* prevent horizontal scroll */
+      touch-action: pan-y;              /* allow only vertical swipes */
+      position: relative;
+      width: 100%;
     }
     img {
       -webkit-user-drag: none;
@@ -46,9 +49,6 @@
       -o-user-drag: none;
       user-drag: none;
       pointer-events: auto;
-    }
-    /* Prevent long-press context menu on images */
-    img {
       -webkit-touch-callout: none;
     }
 
@@ -73,7 +73,7 @@
       margin: 0;
       padding: 0;
       box-sizing: border-box;
-      font-family: 'Poppins', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-family: 'Poppins', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
       transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
     }
 
@@ -120,12 +120,8 @@
       backdrop-filter: var(--glass-blur);
       -webkit-font-smoothing: antialiased;
       padding-top: 80px;
-      overflow-x: hidden;
-      width: 100%;
-      position: relative;
     }
 
-    /* Disable focus outline */
     :focus {
       outline: none;
     }
@@ -236,15 +232,15 @@
       cursor: pointer;
       color: var(--icon-color);
       transition: transform 0.2s;
-      z-index: 1001; /* ensure it's clickable */
+      z-index: 1001;
     }
     .menu-dots:hover { transform: scale(1.05); background: var(--accent); color: white; }
 
-    /* ---------- SIDE MENU (3-DOT) ---------- */
+    /* ---------- SIDE MENU (3-DOT) – fixed to be fully off-screen when closed ---------- */
     .side-menu {
       position: fixed;
       top: 0;
-      right: -380px; /* closed by default */
+      right: -100%;           /* ensures it's completely out of view even on zoom */
       width: 320px;
       max-width: 85vw;
       height: 100vh;
@@ -258,9 +254,11 @@
       display: flex;
       flex-direction: column;
       overflow-y: auto;
-      touch-action: pan-y; /* prevents horizontal swipes */
+      touch-action: pan-y;       /* allow vertical scroll only */
     }
-    .side-menu.open { right: 0; }
+    .side-menu.open {
+      right: 0;
+    }
     .menu-close {
       align-self: flex-end;
       font-size: 2.2rem;
@@ -361,8 +359,6 @@
       cursor: pointer;
       margin: 0.5rem;
     }
-
-    /* Private vault content (hidden initially) */
     .private-vault-content {
       display: none;
       margin: 2rem 0;
@@ -371,7 +367,7 @@
       width: 100%;
       max-width: 600px;
       margin: 0 auto 2rem;
-      aspect-ratio: 1 / 1; /* 1:1 square */
+      aspect-ratio: 1 / 1;
     }
     .private-video-container iframe {
       width: 100%;
@@ -386,9 +382,9 @@
     }
     .private-image-card {
       background: var(--card-bg);
-      border-radius: 22px;
+      border-radius: 20px;
       overflow: hidden;
-      aspect-ratio: 4/5;
+      aspect-ratio: 1/1;
     }
     .private-image-card img {
       width: 100%;
@@ -404,8 +400,6 @@
       justify-content: center;
       color: #ccc;
     }
-
-    /* Private vault section header with close button */
     .vault-header {
       display: flex;
       justify-content: space-between;
@@ -426,7 +420,7 @@
       border: 2px solid white;
     }
 
-    /* ---------- INLINE VIDEO PLAYER (larger) ---------- */
+    /* ---------- INLINE VIDEO PLAYER ---------- */
     .inline-video-player {
       display: none;
       width: 100%;
@@ -554,7 +548,6 @@
       margin-top: 1rem;
       pointer-events: auto;
     }
-    /* Video grid */
     .video-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -677,7 +670,7 @@
       transform: translateY(0);
     }
 
-    /* PERSISTENT CROSS BUTTON (floating, bottom left) */
+    /* PERSISTENT CROSS BUTTON */
     .floating-cross {
       position: fixed;
       bottom: 30px;
@@ -692,7 +685,7 @@
       color: white;
       font-size: 2rem;
       cursor: pointer;
-      z-index: 8000; /* always on top */
+      z-index: 8000;
       box-shadow: var(--shadow);
       border: 2px solid white;
       transition: transform 0.2s;
@@ -700,22 +693,12 @@
     .floating-cross:hover {
       transform: scale(1.1);
     }
-    body.blur-active {
-    filter: blur(20px) !important;
-    transition: filter 0.1s ease-in-out;
-    user-select: none;
-    pointer-events: none;
-    }
   </style>
 </head>
 <body>
-  <!-- Screenshot warning -->
   <div class="screenshot-warning" id="screenshotWarning">⚠️ Screenshot blocked</div>
-
-  <!-- LOADER -->
   <div id="loader"><div class="loader-spinner"></div></div>
 
-  <!-- STICKY HEADER -->
   <header class="sticky-header">
     <div class="logo-area">
       <img class="logo-img" id="siteLogo" src="" alt="logo">
@@ -728,7 +711,6 @@
     </div>
   </header>
 
-  <!-- SIDE MENU (3-DOT) -->
   <div class="side-menu" id="sideMenu">
     <div class="menu-close" onclick="toggleMenu()"><i class="fas fa-times"></i></div>
     <div class="menu-profile" id="menuProfile">
@@ -740,7 +722,6 @@
     <div class="menu-item" onclick="orderImageQuick()"><i class="fab fa-whatsapp"></i> Order Image</div>
     <div class="menu-item" onclick="scrollToSection('books');toggleMenu()"><i class="fas fa-book-open"></i> Books Promotion</div>
     <div class="menu-item" onclick="scrollToSection('videos');toggleMenu()"><i class="fas fa-play-circle"></i> Videos</div>
-    <!-- Private Vault option -->
     <div class="menu-item" onclick="showPrivateVaultSection()"><i class="fas fa-lock"></i> Private Vault</div>
     <div class="menu-item" onclick="scrollToSection('profile');toggleMenu()"><i class="fas fa-user-circle"></i> User Profile</div>
     <div class="menu-item" onclick="alert('About page coming soon')"><i class="fas fa-info-circle"></i> About</div>
@@ -753,62 +734,51 @@
     <div class="menu-item" id="menuLogout" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</div>
   </div>
 
-  <!-- PERSISTENT CROSS BUTTON -->
   <div class="floating-cross" onclick="closeAllOverlays()">
     <i class="fas fa-times"></i>
   </div>
 
-  <!-- NOTIFICATION TOAST -->
   <div class="notification" id="notification"><i class="fas fa-bell"></i> <span id="notifMsg">Welcome</span></div>
-
-  <!-- BACK TO TOP -->
   <div id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})"><i class="fas fa-arrow-up"></i></div>
 
   <main class="container">
-    <!-- HOME section -->
     <section id="home" class="reveal">
       <div style="margin-bottom: 21px; text-align: left;">
-    <a href="https://drive.google.com/file/d/151fM2hesR100zyHCX4DEi7cRuuTrpBep/view?usp=drivesdk" 
-       style="background-color: #2ecc71; color: white; padding: 10px 25px; text-decoration: none; border-radius: 50px; font-weight: bold; font-size: 14px; display: inline-block; box-shadow: 0px 4px 15px rgba(108, 92, 231, 0.3);" 
-       target="_blank">
-       Get App
-    </a>
+        <a href="https://drive.google.com/file/d/151fM2hesR100zyHCX4DEi7cRuuTrpBep/view?usp=drivesdk" 
+           style="background-color: #2ecc71; color: white; padding: 10px 25px; text-decoration: none; border-radius: 50px; font-weight: bold; font-size: 14px; display: inline-block; box-shadow: 0px 4px 15px rgba(108, 92, 231, 0.3);" 
+           target="_blank">
+           Get App
+        </a>
       </div>
       <h2>Imagine. Create. Order.</h2>
-      <p style="font-size:1.4rem; max-width:800px;">Time‑pass entertainment meets creative portfolio. Order similar images on WhatsApp, watch unlimited free viral videos & Korean dramas, explore books. <br> <i class="fas fa-smile-wink" style="color:var(--accent);"></i></p>
+      <p style="font-size:1.4rem; max-width:800px;">Time‑pass entertainment meets creative portfolio. Order similar images on WhatsApp, watch 30+ viral videos & Korean dramas, explore books. <br> <i class="fas fa-smile-wink" style="color:var(--accent);"></i></p>
     </section>
 
-    <!-- SEARCH BAR -->
     <div class="search-bar reveal">
       <input type="text" id="searchInput" placeholder="Search image & Romantic k drama...">
       <button id="searchBtn"><i class="fas fa-search"></i> Search</button>
     </div>
 
-    <!-- GALLERY SECTION -->
     <section id="gallery" class="reveal">
       <h2><i class="fas fa-camera-retro"></i> Romantic Korean Gallery</h2>
       <div class="gallery-grid" id="galleryGrid"></div>
     </section>
 
-    <!-- BOOKS PROMO SECTION -->
     <section id="books" class="reveal">
       <h2><i class="fas fa-book"></i> Books promotion</h2>
       <div class="books-grid" id="booksGrid"></div>
     </section>
 
-    <!-- INLINE VIDEO PLAYER -->
     <div class="inline-video-player" id="inlineVideoPlayer">
       <span class="close-video" onclick="closeVideoPlayer()"><i class="fas fa-times"></i></span>
       <iframe id="videoPlayerIframe" src="" allowfullscreen></iframe>
     </div>
 
-    <!-- VIDEOS SECTION -->
     <section id="videos" class="reveal">
       <h2><i class="fas fa-video"></i> All Videos (30+)</h2>
       <div class="video-grid" id="allVideosGrid"></div>
     </section>
 
-    <!-- PRIVATE VAULT SECTION -->
     <section id="privateVaultSection" class="reveal" style="display:none;">
       <div class="vault-header">
         <h2><i class="fas fa-lock"></i> Private Vault</h2>
@@ -828,7 +798,6 @@
       </div>
     </section>
 
-    <!-- USER PROFILE -->
     <section id="profile" class="reveal" style="display:none;">
       <h2>Your profile</h2>
       <div style="background: var(--card-bg); border-radius: 40px; padding:2rem; backdrop-filter: blur(10px);">
@@ -839,7 +808,6 @@
     </section>
   </main>
 
-  <!-- IMAGE MODAL -->
   <div id="imageModal" class="modal">
     <div class="modal-content">
       <span style="float:right;font-size:2.5rem;cursor:pointer;" onclick="closeModal()">&times;</span>
@@ -858,9 +826,8 @@
 
   <script>
     (function() {
-      // ---------- ANTI-SCREENSHOT / RECORDING ----------
+      // Anti‑screenshot / recording
       document.addEventListener('contextmenu', event => event.preventDefault());
-      
       document.onkeydown = function(e) {
         if(e.keyCode == 123 || (e.ctrlKey && e.shiftKey && e.keyCode == 73) || (e.ctrlKey && e.keyCode == 85)) {
           return false;
@@ -882,12 +849,12 @@
       const auth = firebase.auth();
       const provider = new firebase.auth.GoogleAuthProvider();
 
-      // ---------- CONFIG ----------
+      // ---------- CONSTANTS ----------
       const WHATSAPP_NUMBER = '919734398907';
       const AMAZON_BOOK_LINK = 'https://amzn.in/d/0aTloxFO'; 
       const VAULT_PASSWORD = 'SayAya@191251251';
 
-      // Google Drive file IDs
+      // Google Drive IDs
       const LOGO_ID = '1wLkU1c_iD50cKlAcyAL-hO27dHz-4GGr';
       const PRIVATE_IMAGE_IDS = [
         '1-qd3Sw0F48A6ObsJhEGSxVz88AE6UY5H', '1dEvnjTgZzigu9UQY1y6r09CgpKGw3Q8h',
@@ -901,21 +868,18 @@
       const PRIVATE_VIDEO_ID = '1rpHmEev99eQRBH8_L6JkQf_khXvLhT3j';
       const BOOK_COVER_ID = '14Ro1TjqU4EtPkZ8cs8fyZYpKdwmi5AvB';
 
-      // All YouTube video IDs (original 27 + 3 new)
       const allVideoIds = [
         'J9m31OPGdRI', '1RPyQdl7znk', 'gRfQ6F-wOZ0', 'U2tnLidjCdY', 'KkTvDXvJbmk',
         'LVjq690vO08', '47o_QwA9zLA', 'Rfcm83A3lOw', 'zsc8fpTTSVY', 'BRZ97jx3exU',
         'JVDAJ_Sf5PI', 'cnFdhrun0aM', 'v4IO_axoXi0', 'xUCe-rf5H5A', 'huuQas2RZHI',
         'M33DGgUssYU', '0lDOyCYqSVE', 'HHHtBII9NnA', 'G5P83XVLqRw', 'LVjq690vO08',
         'BSJa1UytM8w', '0v5eHPfy5Lk', '8SYPKQMW_2Q', 'Qvh8uxAXbXk', '8nDIkeDJrVw',
-        'cWCkXrYssZQ', '55BS8QO5C9o', // two from before
-        '43TFcQKRx3U', '0ZlHuOBknxM', 'kMUijDNYq_M' // three new videos
+        'cWCkXrYssZQ', '55BS8QO5C9o',
+        '43TFcQKRx3U', '0ZlHuOBknxM', 'kMUijDNYq_M'
       ];
 
-      // Set logo
       document.getElementById('siteLogo').src = `https://drive.google.com/thumbnail?id=${LOGO_ID}&sz=w200`;
 
-      // Gallery images
       const galleryImages = [
         { url: 'https://images.unsplash.com/photo-1524502397800-6c9e9c556d9b?w=400&h=300&fit=crop', title: 'Romantic walk' },
         { url: 'https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?w=400&h=300&fit=crop', title: 'Couple in love' },
@@ -925,30 +889,14 @@
         { url: 'https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?w=400&h=300&fit=crop', title: 'Cozy moment' }
       ];
 
-      // Books
       const books = [
         { title: 'Creative Mind', cover: `https://drive.google.com/thumbnail?id=${BOOK_COVER_ID}&sz=w400`, desc: 'Unlock ideas' },
         { title: 'Photo Secrets', cover: 'https://images.unsplash.com/photo-1516979187457-637abb4f9353?w=200&h=280&fit=crop', desc: 'Master composition' },
         { title: 'Visual Stories', cover: 'https://images.unsplash.com/photo-1532012197267-da84d127e765?w=200&h=280&fit=crop', desc: 'Narrative art' }
       ];
 
-      // ---------- AUTH STATE ----------
-      let currentUser = null;
-      auth.onAuthStateChanged(user => {
-        if (user) {
-          currentUser = {
-            name: user.displayName,
-            pic: user.photoURL,
-            email: user.email
-          };
-          updateUserUI();
-        } else {
-          currentUser = null;
-          updateUserUI();
-        }
-      });
-
-      // DOM elements
+      // ---------- REAL FIREBASE AUTH ----------
+      let currentUser = null;      // will be set by onAuthStateChanged
       const loader = document.getElementById('loader');
       window.addEventListener('load', () => document.body.classList.add('loaded'));
 
@@ -963,11 +911,9 @@
       const profileStatus = document.getElementById('profileStatus');
       const themeToggle = document.getElementById('themeToggleCheckbox');
 
-      // Video inline player
       const inlineVideoPlayer = document.getElementById('inlineVideoPlayer');
       const videoPlayerIframe = document.getElementById('videoPlayerIframe');
 
-      // Private vault inline elements
       const privateVaultSection = document.getElementById('privateVaultSection');
       const vaultPasswordSection = document.getElementById('vaultPasswordSection');
       const privateVaultContent = document.getElementById('privateVaultContent');
@@ -975,29 +921,12 @@
       const privateImagesInline = document.getElementById('privateImagesInline');
       const vaultPasswordInline = document.getElementById('vaultPasswordInline');
 
-      // Screenshot warning
       const screenshotWarning = document.getElementById('screenshotWarning');
-    // যখন স্ক্রিনে টাচ করা হবে
-    document.addEventListener('touchstart', function(event) {
-        if (event.touches.length >= 3) {
-            document.body.classList.add('blur-active');
-        }
-    });
 
-    // যখন স্ক্রিন থেকে আঙুল সরিয়ে নেওয়া হবে
-    document.addEventListener('touchend', function(event) {
-        if (event.touches.length < 3) {
-            document.body.classList.remove('blur-active');
-        }
-    });
-
-    // কোনো কারণে টাচ ক্যান্সেল হয়ে গেলে
-    document.addEventListener('touchcancel', function(event) {
-        document.body.classList.remove('blur-active');
-    });
-      // Ensure menu is closed on page load (CSS already does, but double-check)
+      // Ensure menu is closed on load
       document.getElementById('sideMenu').classList.remove('open');
 
+      // Update UI based on Firebase user
       function updateUserUI() {
         if (currentUser) {
           userThumb.src = currentUser.pic;
@@ -1020,18 +949,38 @@
         }
       }
 
-      googleLoginBtn.addEventListener('click', () => {
-        auth.signInWithPopup(provider).catch(error => showNotif('Login failed'));
+      // Firebase auth state listener
+      auth.onAuthStateChanged(user => {
+        if (user) {
+          currentUser = {
+            name: user.displayName,
+            pic: user.photoURL,
+            email: user.email
+          };
+        } else {
+          currentUser = null;
+        }
+        updateUserUI();
       });
 
+      // Login button – real Google sign‑in
+      googleLoginBtn.addEventListener('click', () => {
+        auth.signInWithPopup(provider).catch(error => {
+          console.error('Login error:', error);
+          showNotif('Login failed');
+        });
+      });
+
+      // Logout
       window.logout = function() {
-        auth.signOut();
-        showNotif('Logged out');
-        toggleMenu();
-        privateVaultSection.style.display = 'none';
-        vaultPasswordSection.style.display = 'block';
-        privateVaultContent.style.display = 'none';
-        vaultPasswordInline.value = '';
+        auth.signOut().then(() => {
+          showNotif('Logged out');
+          toggleMenu();
+          privateVaultSection.style.display = 'none';
+          vaultPasswordSection.style.display = 'block';
+          privateVaultContent.style.display = 'none';
+          vaultPasswordInline.value = '';
+        }).catch(err => console.error('Logout error:', err));
       };
 
       function showNotif(msg) {
@@ -1073,7 +1022,6 @@
       }
       window.closeModal = () => document.getElementById('imageModal').style.display = 'none';
 
-      // Books render
       function renderBooks() {
         const grid = document.getElementById('booksGrid');
         books.forEach(b => {
@@ -1088,7 +1036,6 @@
         });
       }
 
-      // Render all videos
       function renderAllVideos() {
         const grid = document.getElementById('allVideosGrid');
         grid.innerHTML = '';
@@ -1112,9 +1059,8 @@
         videoPlayerIframe.src = '';
       };
 
-      // Private vault functions
       window.showPrivateVaultSection = function() {
-        toggleMenu(); // close menu
+        toggleMenu();
         privateVaultSection.style.display = 'block';
         vaultPasswordSection.style.display = 'block';
         privateVaultContent.style.display = 'none';
@@ -1158,24 +1104,12 @@
         }
       };
 
-      // ---------- GLOBAL CLOSE ALL OVERLAYS (for floating cross) ----------
       window.closeAllOverlays = function() {
-        // Close video player
-        if (inlineVideoPlayer.style.display === 'block') {
-          closeVideoPlayer();
-        }
-        // Close side menu
-        if (document.getElementById('sideMenu').classList.contains('open')) {
-          toggleMenu();
-        }
-        // Close image modal
-        if (document.getElementById('imageModal').style.display === 'flex') {
-          document.getElementById('imageModal').style.display = 'none';
-        }
-        // Private vault section is not closed by floating cross (user may want to keep it open)
+        if (inlineVideoPlayer.style.display === 'block') closeVideoPlayer();
+        if (document.getElementById('sideMenu').classList.contains('open')) toggleMenu();
+        if (document.getElementById('imageModal').style.display === 'flex') document.getElementById('imageModal').style.display = 'none';
       };
 
-      // side menu - only toggles on click, no swipe
       window.toggleMenu = () => document.getElementById('sideMenu').classList.toggle('open');
       window.openMenu = () => document.getElementById('sideMenu').classList.add('open');
 
@@ -1209,21 +1143,20 @@
           if (top < window.innerHeight - 100) r.classList.add('active');
         });
       }
-      window.addEventListener('scroll', checkReveal); checkReveal();
+      window.addEventListener('scroll', checkReveal);
+      checkReveal();
 
       window.orderImageQuick = () => {
         window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent('Hello, I want to order an image similar to a sample.')}`, '_blank');
         showNotif('WhatsApp order prepopulated');
       };
 
-      // initial render
       renderGallery('');
       renderBooks();
       renderAllVideos();
-      updateUserUI();
+      updateUserUI();   // initial UI (guest)
     })();
   </script>
-  <!-- toggle switch style -->
   <style>
     .switch { position: relative; display: inline-block; width: 50px; height: 24px; background: grey; border-radius: 34px; }
     .switch input { opacity:0; width:0; height:0; }
