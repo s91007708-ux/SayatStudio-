@@ -1,0 +1,21 @@
+{
+  "name": "SayatStudio",
+  "short_name": "SayatStudio",
+  "description": "Imagine. Create. Order. Romantic gallery and entertainment app.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#6c5ce7",
+  "icons": [
+    {
+      "src": "logo.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "logo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
