@@ -38,8 +38,8 @@
       -moz-user-drag: none;
       -o-user-drag: none;
       user-drag: none;
-      overflow-x: hidden;               /* prevent horizontal scroll */
-      touch-action: pan-y;              /* allow only vertical swipes */
+      overflow-x: hidden;
+      touch-action: pan-y;
       position: relative;
       width: 100%;
     }
@@ -241,7 +241,7 @@
     .side-menu {
       position: fixed;
       top: 0;
-      right: -100%;           /* ensures it's completely out of view even on zoom */
+      right: -100%;
       width: 320px;
       max-width: 85vw;
       height: 100vh;
@@ -255,7 +255,7 @@
       display: flex;
       flex-direction: column;
       overflow-y: auto;
-      touch-action: pan-y;       /* allow vertical scroll only */
+      touch-action: pan-y;
     }
     .side-menu.open {
       right: 0;
@@ -745,7 +745,8 @@
   <main class="container">
     <section id="home" class="reveal">
       <div style="margin-bottom: 21px; text-align: left;">
-        <a href="https://drive.google.com/file/d/151fM2hesR100zyHCX4DEi7cRuuTrpBep/view?usp=drivesdk" 
+        <!-- UPDATED DOWNLOAD LINK -->
+        <a href="https://drive.google.com/file/d/1uu1Hj3dxaZDk5j80WBF6gS4FqAgHahWs/view?usp=drivesdk" 
            style="background-color: #2ecc71; color: white; padding: 10px 25px; text-decoration: none; border-radius: 50px; font-weight: bold; font-size: 14px; display: inline-block; box-shadow: 0px 4px 15px rgba(108, 92, 231, 0.3);" 
            target="_blank">
            Get App
@@ -853,7 +854,7 @@
       // ---------- CONSTANTS ----------
       const WHATSAPP_NUMBER = '919734398907';
       const AMAZON_BOOK_LINK = 'https://amzn.in/d/0aTloxFO'; 
-      const VAULT_PASSWORD = 'SayAya@191251251';
+      const VAULT_PASSWORD = 'SayAya@191251251';  // ← changed password
 
       // Google Drive IDs
       const LOGO_ID = '1wLkU1c_iD50cKlAcyAL-hO27dHz-4GGr';
