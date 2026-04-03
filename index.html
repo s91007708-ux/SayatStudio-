@@ -1622,10 +1622,21 @@
       });
 
       // ---------- HEADER ADD BUTTON (FIXED) ----------
-      const headerAddBtn = document.getElementById('headerAddBtn');
-      if (headerAddBtn) {
-        headerAddBtn.addEventListener('click', openUploadModal);
-      }
+const headerAddBtn = document.getElementById('headerAddBtn');
+if (headerAddBtn) {
+    headerAddBtn.onclick = function() {
+        const user = firebase.auth().currentUser;
+        if (!user) {
+            showNotif('⚠️ Access Denied! Please Login to Upload.', true, 3000);
+            return;
+        }
+        const modal = document.getElementById('uploadModal');
+        if (modal) {
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+    };
+}
 
       // ---------- SCROLL ----------
       window.closeAllOverlays = function() {
