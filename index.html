@@ -19,9 +19,6 @@
   <title>SayatStudio · romantic gallery & videos</title>
   <link rel="icon" type="image/png" href="logo.png">
   <link rel="apple-touch-icon" href="logo.png">
-  <link rel="shortcut icon" href="logo.png" type="image/x-icon">
-<meta property="og:image" content="https://sayatstudio.netlify.app/logo.png">
-<meta name="twitter:image" content="https://sayatstudio.netlify.app/logo.png">
   <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <!-- Firebase SDKs (compat version) -->
@@ -985,7 +982,7 @@
     </footer>
   </div>
 
-  <!-- Upload Modal (always visible when opened) -->
+  <!-- Upload Modal -->
   <div id="uploadModal" class="upload-modal">
     <div class="modal-content">
       <span class="close-modal-btn" onclick="closeUploadModal()">&times;</span>
@@ -1539,6 +1536,8 @@
         if (modal) {
           modal.style.display = 'flex';
           document.body.style.overflow = 'hidden';
+        } else {
+          console.error('Upload modal not found');
         }
       }
 
