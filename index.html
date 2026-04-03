@@ -1525,7 +1525,26 @@
         }
       };
 
-      // ---------- UPLOAD MODAL (FIXED - opens automatically) ----------
+      // ---------- UPLOAD MODAL (FIXED) ----------
+      function convertToEmbedUrl(url) {
+        if (!url) return url;
+        // If it's already an embed URL, return as is
+        if (url.includes('youtube.com/embed/')) return url;
+        // Convert youtube.com/watch?v=ID
+        let match = url.match(/[?&]v=([^&]+)/);
+        if (match) {
+          return `https://www.youtube.com/embed/${match[1]}`;
+        }
+        // Convert youtu.be/ID
+        match = url.match(/youtu\.be\/([^?&]+)/);
+        if (match) {
+          return `https://www.youtube.com/embed/${match[1]}`;
+        }
+        // For other platforms (Facebook, Instagram, etc.), keep original URL
+        // The iframe might not work, but we'll let it be.
+        return url;
+      }
+
       function openUploadModal() {
         if (!currentUser) {
           showNotif('⚠️ Access Denied! Please Login to Upload.', true, 3000);
@@ -1536,8 +1555,6 @@
         if (modal) {
           modal.style.display = 'flex';
           document.body.style.overflow = 'hidden';
-        } else {
-          console.error('Upload modal not found');
         }
       }
 
@@ -1554,9 +1571,9 @@
       };
 
       document.getElementById('publishVideoBtn').addEventListener('click', async () => {
-        const title = document.getElementById('uploadTitle').value.trim();
-        const thumb = document.getElementById('uploadThumb').value.trim();
-        const embed = document.getElementById('uploadEmbed').value.trim();
+        let title = document.getElementById('uploadTitle').value.trim();
+        let thumb = document.getElementById('uploadThumb').value.trim();
+        let embed = document.getElementById('uploadEmbed').value.trim();
         const category = document.getElementById('uploadCategory').value;
 
         if (!title || !thumb || !embed) {
@@ -1564,11 +1581,14 @@
           return;
         }
 
+        // Convert to embed URL if needed
+        const finalEmbedUrl = convertToEmbedUrl(embed);
+
         try {
           await db.collection('videos').add({
             title: title,
             thumbnail: thumb,
-            embedUrl: embed,
+            embedUrl: finalEmbedUrl,
             category: category,
             likes: 0,
             createdAt: firebase.firestore.FieldValue.serverTimestamp(),
@@ -1601,7 +1621,7 @@
         });
       });
 
-      // ---------- HEADER ADD BUTTON ----------
+      // ---------- HEADER ADD BUTTON (FIXED) ----------
       const headerAddBtn = document.getElementById('headerAddBtn');
       if (headerAddBtn) {
         headerAddBtn.addEventListener('click', openUploadModal);
