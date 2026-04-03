@@ -390,7 +390,7 @@
       color: var(--accent);
     }
     .like-btn.liked i {
-      color: #ff4757;
+      color: #ff69b4 !important; /* pink when liked */
     }
 
     /* Gallery grid */
@@ -854,7 +854,7 @@
     <div class="close-upload-form" onclick="closeUploadForm()">&times;</div>
     <h3>Upload Your Video</h3>
     <input type="text" id="uploadTitle" placeholder="Video Title" required>
-    <input type="text" id="uploadThumb" placeholder="Thumbnail Image URL" required>
+    <input type="text" id="uploadThumb" placeholder="Thumbnail Image URL (optional)" required>
     <input type="text" id="uploadEmbed" placeholder="Video URL (YouTube, Facebook, Instagram, etc.)" required>
     <select id="uploadCategory">
       <option value="K-Drama">🇰🇷 K-Drama</option>
@@ -946,9 +946,9 @@
         <div class="video-grid" id="userVideosGrid"></div>
       </section>
 
-      <!-- Static Videos (30 Korean Dramas & Songs) -->
+      <!-- Static Videos (Korean Drama & Classics, without the two removed) -->
       <section id="staticVideos" class="reveal">
-        <h2><i class="fas fa-tv"></i> Korean Drama & Classics (30+)</h2>
+        <h2><i class="fas fa-tv"></i> Korean Drama & Classics (28+)</h2>
         <div class="video-grid" id="staticVideosGrid"></div>
       </section>
 
@@ -1029,6 +1029,7 @@
       const WHATSAPP_NUMBER = '919734398907';
       const AMAZON_BOOK_LINK = 'https://amzn.in/d/0aTloxFO'; 
       const VAULT_PASSWORD = 'SayAya@191251251';
+      const DEFAULT_THUMBNAIL = 'https://via.placeholder.com/400x225?text=SayatStudio+Video';
 
       // Google Drive IDs
       const LOGO_ID = '1wLkU1c_iD50cKlAcyAL-hO27dHz-4GGr';
@@ -1045,9 +1046,8 @@
       const PRIVATE_VIDEO_ID = '1rpHmEev99eQRBH8_L6JkQf_khXvLhT3j';
       const BOOK_COVER_ID = '14Ro1TjqU4EtPkZ8cs8fyZYpKdwmi5AvB';
 
-      // Static videos – full 30 Korean drama and song videos
+      // Static videos – full 30 originally, but we remove "K-Drama 1" and "Song 1" (indices 0 and 12)
       const staticVideoData = [
-        { title: 'K-Drama 1', embedId: 'J9m31OPGdRI', category: 'K-Drama' },
         { title: 'K-Drama 2', embedId: '1RPyQdl7znk', category: 'K-Drama' },
         { title: 'K-Drama 3', embedId: 'gRfQ6F-wOZ0', category: 'K-Drama' },
         { title: 'K-Drama 4', embedId: 'U2tnLidjCdY', category: 'K-Drama' },
@@ -1059,7 +1059,6 @@
         { title: 'K-Drama 10', embedId: 'BRZ97jx3exU', category: 'K-Drama' },
         { title: 'K-Drama 11', embedId: 'JVDAJ_Sf5PI', category: 'K-Drama' },
         { title: 'K-Drama 12', embedId: 'cnFdhrun0aM', category: 'K-Drama' },
-        { title: 'Song 1', embedId: 'v4IO_axoXi0', category: 'Song' },
         { title: 'Song 2', embedId: 'xUCe-rf5H5A', category: 'Song' },
         { title: 'Song 3', embedId: 'huuQas2RZHI', category: 'Song' },
         { title: 'Song 4', embedId: 'M33DGgUssYU', category: 'Song' },
@@ -1188,7 +1187,7 @@
           privateVaultContent.style.display = 'none';
           vaultPasswordInline.value = '';
           clearPasswordError();
-          closeUploadForm(); // close upload form if open
+          closeUploadForm();
         }).catch(err => console.error('Logout error:', err));
       };
 
@@ -1315,7 +1314,7 @@
           const card = document.createElement('div');
           card.className = 'video-card';
           card.innerHTML = `
-            <img src="${video.thumbnail}" alt="${video.title}" onerror="this.src='https://via.placeholder.com/400x225?text=No+Image'">
+            <img src="${video.thumbnail}" alt="${video.title}" onerror="this.src='${DEFAULT_THUMBNAIL}'">
             <div class="video-info">
               <div class="video-title">
                 <span>${video.title}</span>
@@ -1335,6 +1334,8 @@
           likeBtn.addEventListener('click', (e) => {
             e.stopPropagation();
             likeUserVideo(video.id);
+            // Add visual pink color immediately
+            likeBtn.classList.add('liked');
           });
           const shareBtn = card.querySelector('.share-btn');
           shareBtn.addEventListener('click', (e) => {
@@ -1352,7 +1353,7 @@
           const card = document.createElement('div');
           card.className = 'video-card';
           card.innerHTML = `
-            <img src="${video.thumbnail}" alt="${video.title}" onerror="this.src='https://via.placeholder.com/400x225?text=No+Image'">
+            <img src="${video.thumbnail}" alt="${video.title}" onerror="this.src='${DEFAULT_THUMBNAIL}'">
             <div class="video-info">
               <div class="video-title">
                 <span>${video.title}</span>
@@ -1510,7 +1511,7 @@
         }
       };
 
-      // ---------- INLINE UPLOAD FORM (no lightbox) ----------
+      // ---------- INLINE UPLOAD FORM with automatic thumbnail logic ----------
       function convertToEmbedUrl(url) {
         if (!url) return url;
         if (url.includes('youtube.com/embed/')) return url;
@@ -1525,11 +1526,44 @@
         return url;
       }
 
+      function extractYouTubeId(url) {
+        if (!url) return null;
+        let match = url.match(/[?&]v=([^&]+)/);
+        if (match) return match[1];
+        match = url.match(/youtu\.be\/([^?&]+)/);
+        if (match) return match[1];
+        return null;
+      }
+
+      function convertGoogleDriveThumbnail(thumbUrl) {
+        const match = thumbUrl.match(/\/file\/d\/([^\/]+)/);
+        if (match) {
+          return `https://drive.google.com/thumbnail?id=${match[1]}&sz=w800`;
+        }
+        return thumbUrl;
+      }
+
+      function generateThumbnail(embedUrl, userThumbUrl) {
+        if (userThumbUrl && userThumbUrl.trim() !== '') {
+          let processedThumb = userThumbUrl.trim();
+          // If it's a Google Drive link, convert to direct thumbnail
+          if (processedThumb.includes('drive.google.com')) {
+            processedThumb = convertGoogleDriveThumbnail(processedThumb);
+          }
+          return processedThumb;
+        }
+        // No user thumbnail: try to extract YouTube ID
+        const youtubeId = extractYouTubeId(embedUrl);
+        if (youtubeId) {
+          return `https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg`;
+        }
+        return DEFAULT_THUMBNAIL;
+      }
+
       function openUploadForm() {
         const form = document.getElementById('inlineUploadForm');
         if (form) {
           form.style.display = 'block';
-          // Scroll to the form smoothly
           form.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
       }
@@ -1538,7 +1572,6 @@
         const form = document.getElementById('inlineUploadForm');
         if (form) {
           form.style.display = 'none';
-          // Clear fields
           document.getElementById('uploadTitle').value = '';
           document.getElementById('uploadThumb').value = '';
           document.getElementById('uploadEmbed').value = '';
@@ -1547,7 +1580,6 @@
       };
 
       document.getElementById('publishVideoBtn').addEventListener('click', async () => {
-        // Check login first
         if (!currentUser) {
           showNotif('⚠️ Access Denied! Please Login to Upload.', true, 3000);
           return;
@@ -1558,17 +1590,21 @@
         let embed = document.getElementById('uploadEmbed').value.trim();
         const category = document.getElementById('uploadCategory').value;
 
-        if (!title || !thumb || !embed) {
-          showNotif('Please fill all fields', true);
+        if (!title || !embed) {
+          showNotif('Please fill all fields (Title and Video URL are required)', true);
           return;
         }
 
         const finalEmbedUrl = convertToEmbedUrl(embed);
+        let finalThumbnail = generateThumbnail(finalEmbedUrl, thumb);
+
+        // Validate thumbnail URL (optional, but we set a fallback on error later)
+        // We'll rely on the onerror attribute in the img tag to fallback to default.
 
         try {
           await db.collection('videos').add({
             title: title,
-            thumbnail: thumb,
+            thumbnail: finalThumbnail,
             embedUrl: finalEmbedUrl,
             category: category,
             likes: 0,
@@ -1602,7 +1638,7 @@
         });
       });
 
-      // ---------- HEADER ADD BUTTON (opens inline form, not modal) ----------
+      // ---------- HEADER ADD BUTTON ----------
       const headerAddBtn = document.getElementById('headerAddBtn');
       if (headerAddBtn) {
         headerAddBtn.addEventListener('click', openUploadForm);
@@ -1613,7 +1649,6 @@
         if (document.getElementById('inlinePlayer').style.display === 'block') closeInlinePlayer();
         if (document.getElementById('sideMenu').classList.contains('open')) toggleMenu();
         if (document.getElementById('imageModal').style.display === 'flex') document.getElementById('imageModal').style.display = 'none';
-        // Do not close the upload form automatically
       };
 
       window.toggleMenu = () => document.getElementById('sideMenu').classList.toggle('open');
