@@ -1024,7 +1024,21 @@
       const auth = firebase.auth();
       const provider = new firebase.auth.GoogleAuthProvider();
       const db = firebase.firestore();
-
+// Google Drive Thumbnail Generator Function
+function getThumbnail(url) {
+    if (url && url.includes('drive.google.com')) {
+        const fileId = url.split('/d/')[1]?.split('/')[0] || url.split('id=')[1]?.split('&')[0];
+        return `https://drive.google.com/thumbnail?id=${fileId}&sz=w800`;
+    }
+    // YouTube-এর জন্য অটো থাম্বনেইল লজিক
+    if (url && (url.includes('youtube.com') || url.includes('youtu.be'))) {
+        let videoId = "";
+        if (url.includes('v=')) { videoId = url.split('v=')[1].split('&')[0]; }
+        else { videoId = url.split('/').pop().split('?')[0]; }
+        return `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+    }
+    return url;
+}
       // ---------- CONSTANTS ----------
       const WHATSAPP_NUMBER = '919734398907';
       const AMAZON_BOOK_LINK = 'https://amzn.in/d/0aTloxFO'; 
@@ -1226,7 +1240,20 @@
         if (passwordErrorTimeout) clearTimeout(passwordErrorTimeout);
         vaultPasswordError.innerHTML = '';
       }
-
+// এই কোডটি ১২৪৩ নম্বর লাইনে বসান
+function getThumbnail(url) {
+    if (url && url.includes('drive.google.com')) {
+        const fileId = url.split('/d/')[1]?.split('/')[0] || url.split('id=')[1]?.split('&')[0];
+        return `https://drive.google.com/thumbnail?id=${fileId}&sz=w800`;
+    }
+    if (url && (url.includes('youtube.com') || url.includes('youtu.be'))) {
+        let videoId = "";
+        if (url.includes('v=')) { videoId = url.split('v=')[1].split('&')[0]; }
+        else { videoId = url.split('/').pop().split('?')[0]; }
+        return `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+    }
+    return url;
+}
       // ---------- GALLERY, BOOKS ----------
       function renderGallery() {
         const grid = document.getElementById('galleryGrid');
