@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -553,24 +553,25 @@
       animation: shake 0.4s ease-in-out;
     }
 
-    /* Modals */
-    .modal, .upload-modal, .video-modal {
+    /* Upload Modal (fixed) */
+    .upload-modal {
       display: none;
       position: fixed;
       inset: 0;
       background: rgba(0,0,0,0.7);
       backdrop-filter: blur(20px);
-      z-index: 10000;
+      z-index: 10001;
       align-items: center;
       justify-content: center;
     }
-    .modal-content, .upload-modal .modal-content {
+    .upload-modal .modal-content {
       background: var(--surface);
       border-radius: 48px;
       padding: 2rem;
       width: 90%;
       max-width: 500px;
       border: var(--border-light);
+      position: relative;
     }
     .upload-modal h3 {
       text-align: center;
@@ -595,6 +596,10 @@
       font-size: 1rem;
       cursor: pointer;
       width: 100%;
+      transition: background 0.2s;
+    }
+    .upload-modal button:hover {
+      background: var(--accent-hover);
     }
     .close-modal-btn {
       position: absolute;
@@ -603,6 +608,27 @@
       font-size: 2rem;
       cursor: pointer;
       color: var(--text-primary);
+    }
+
+    /* Other modals */
+    .modal, .video-modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(20px);
+      z-index: 10000;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-content {
+      background: var(--surface);
+      border-radius: 48px;
+      padding: 2rem;
+      width: 90%;
+      max-width: 500px;
+      border: var(--border-light);
+      text-align: center;
     }
     .video-modal {
       background: rgba(0,0,0,0.95);
@@ -1404,15 +1430,13 @@
 
         // Scroll to the appropriate section based on what was playing
         if (currentMediaType === 'video') {
-          // Scroll to the main videos section (the container that holds all videos)
           const videosSection = document.getElementById('videos');
           if (videosSection) {
-            const offset = 192; // account for fixed header + category bar
+            const offset = 192;
             const elementPosition = videosSection.getBoundingClientRect().top + window.pageYOffset;
             window.scrollTo({ top: elementPosition - offset, behavior: 'smooth' });
           }
         } else if (currentMediaType === 'image') {
-          // Scroll to private vault section
           const privateVault = document.getElementById('privateVaultSection');
           if (privateVault) {
             const offset = 192;
@@ -1420,14 +1444,11 @@
             window.scrollTo({ top: elementPosition - offset, behavior: 'smooth' });
           }
         } else {
-          // Default to home if unknown
           document.getElementById('home').scrollIntoView({ behavior: 'smooth' });
         }
-        // Reset media type
         currentMediaType = null;
       }
 
-      // Expose close function globally for the close button
       window.closeInlinePlayer = closeInlinePlayer;
 
       function likeUserVideo(videoId) {
@@ -1475,7 +1496,6 @@
 
       window.closePrivateVault = function() {
         privateVaultSection.style.display = 'none';
-        // Also close the inline player if it's open
         if (document.getElementById('inlinePlayer').style.display === 'block') {
           closeInlinePlayer();
         }
@@ -1503,7 +1523,6 @@
               card.appendChild(fallback);
             };
             card.appendChild(img);
-            // Click private image -> open in inline player
             card.addEventListener('click', (e) => {
               e.stopPropagation();
               showImageInPlayer(img.src);
@@ -1515,24 +1534,32 @@
         }
       };
 
-      // ---------- UPLOAD ----------
+      // ---------- UPLOAD MODAL (FIXED) ----------
       function openUploadModal() {
         if (!currentUser) {
           showNotif('⚠️ Access Denied! Please Login to Upload.', true, 3000);
           pendingUpload = true;
           return;
         }
-        document.getElementById('uploadModal').style.display = 'flex';
-        document.body.style.overflow = 'hidden';
+        const modal = document.getElementById('uploadModal');
+        if (modal) {
+          modal.style.display = 'flex';
+          document.body.style.overflow = 'hidden';
+        } else {
+          console.error('Upload modal not found');
+        }
       }
 
       window.closeUploadModal = function() {
-        document.getElementById('uploadModal').style.display = 'none';
-        document.body.style.overflow = '';
-        document.getElementById('uploadTitle').value = '';
-        document.getElementById('uploadThumb').value = '';
-        document.getElementById('uploadEmbed').value = '';
-        document.getElementById('uploadCategory').value = 'K-Drama';
+        const modal = document.getElementById('uploadModal');
+        if (modal) {
+          modal.style.display = 'none';
+          document.body.style.overflow = '';
+          document.getElementById('uploadTitle').value = '';
+          document.getElementById('uploadThumb').value = '';
+          document.getElementById('uploadEmbed').value = '';
+          document.getElementById('uploadCategory').value = 'K-Drama';
+        }
       };
 
       document.getElementById('publishVideoBtn').addEventListener('click', async () => {
@@ -1584,7 +1611,12 @@
       });
 
       // ---------- HEADER ADD BUTTON ----------
-      document.getElementById('headerAddBtn').addEventListener('click', openUploadModal);
+      const headerAddBtn = document.getElementById('headerAddBtn');
+      if (headerAddBtn) {
+        headerAddBtn.addEventListener('click', openUploadModal);
+      } else {
+        console.error('Header add button not found');
+      }
 
       // ---------- SCROLL ----------
       window.closeAllOverlays = function() {
