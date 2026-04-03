@@ -553,12 +553,12 @@
       animation: shake 0.4s ease-in-out;
     }
 
-    /* Upload Modal (fixed) */
+    /* Upload Modal (fixed, always on top) */
     .upload-modal {
       display: none;
       position: fixed;
       inset: 0;
-      background: rgba(0,0,0,0.7);
+      background: rgba(0,0,0,0.85);
       backdrop-filter: blur(20px);
       z-index: 10001;
       align-items: center;
@@ -985,7 +985,7 @@
     </footer>
   </div>
 
-  <!-- Upload Modal -->
+  <!-- Upload Modal (always visible when opened) -->
   <div id="uploadModal" class="upload-modal">
     <div class="modal-content">
       <span class="close-modal-btn" onclick="closeUploadModal()">&times;</span>
@@ -1124,8 +1124,6 @@
       let pendingUpload = false;
       let toastTimeout = null;
       let passwordErrorTimeout = null;
-
-      // Track what is currently playing in the inline player
       let currentMediaType = null; // 'video' or 'image'
 
       const loader = document.getElementById('loader');
@@ -1385,7 +1383,6 @@
         });
       }
 
-      // Play video in inline player and scroll to it
       function playVideoInline(embedUrl) {
         const player = document.getElementById('inlinePlayer');
         const iframe = document.getElementById('inlinePlayerIframe');
@@ -1399,7 +1396,6 @@
         currentMediaType = 'video';
       }
 
-      // Show image in inline player
       function showImageInPlayer(imgSrc) {
         const player = document.getElementById('inlinePlayer');
         const iframe = document.getElementById('inlinePlayerIframe');
@@ -1413,7 +1409,6 @@
         currentMediaType = 'image';
       }
 
-      // Close the inline player and scroll to appropriate section
       function closeInlinePlayer() {
         const player = document.getElementById('inlinePlayer');
         const iframe = document.getElementById('inlinePlayerIframe');
@@ -1428,7 +1423,6 @@
           player.classList.remove('fade-out');
         }, 300);
 
-        // Scroll to the appropriate section based on what was playing
         if (currentMediaType === 'video') {
           const videosSection = document.getElementById('videos');
           if (videosSection) {
@@ -1534,7 +1528,7 @@
         }
       };
 
-      // ---------- UPLOAD MODAL (FIXED) ----------
+      // ---------- UPLOAD MODAL (FIXED - opens automatically) ----------
       function openUploadModal() {
         if (!currentUser) {
           showNotif('⚠️ Access Denied! Please Login to Upload.', true, 3000);
@@ -1545,8 +1539,6 @@
         if (modal) {
           modal.style.display = 'flex';
           document.body.style.overflow = 'hidden';
-        } else {
-          console.error('Upload modal not found');
         }
       }
 
@@ -1614,8 +1606,6 @@
       const headerAddBtn = document.getElementById('headerAddBtn');
       if (headerAddBtn) {
         headerAddBtn.addEventListener('click', openUploadModal);
-      } else {
-        console.error('Header add button not found');
       }
 
       // ---------- SCROLL ----------
