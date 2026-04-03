@@ -550,31 +550,22 @@
       animation: shake 0.4s ease-in-out;
     }
 
-    /* Upload Modal (fixed, always on top) */
-    .upload-modal {
+    /* Inline upload form (no lightbox) */
+    .inline-upload-form {
       display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.85);
-      backdrop-filter: blur(20px);
-      z-index: 10001;
-      align-items: center;
-      justify-content: center;
-    }
-    .upload-modal .modal-content {
       background: var(--surface);
+      backdrop-filter: blur(20px);
+      border: var(--border-light);
       border-radius: 48px;
       padding: 2rem;
-      width: 90%;
-      max-width: 500px;
-      border: var(--border-light);
+      margin: 2rem 0;
       position: relative;
     }
-    .upload-modal h3 {
+    .inline-upload-form h3 {
       text-align: center;
       margin-bottom: 1.5rem;
     }
-    .upload-modal input, .upload-modal select {
+    .inline-upload-form input, .inline-upload-form select {
       width: 100%;
       padding: 0.8rem 1rem;
       border-radius: 60px;
@@ -584,7 +575,7 @@
       font-size: 1rem;
       margin-bottom: 1rem;
     }
-    .upload-modal button {
+    .inline-upload-form button {
       background: var(--accent);
       color: white;
       border: none;
@@ -595,10 +586,10 @@
       width: 100%;
       transition: background 0.2s;
     }
-    .upload-modal button:hover {
+    .inline-upload-form button:hover {
       background: var(--accent-hover);
     }
-    .close-modal-btn {
+    .close-upload-form {
       position: absolute;
       top: 10px;
       right: 20px;
@@ -607,7 +598,7 @@
       color: var(--text-primary);
     }
 
-    /* Other modals */
+    /* Other modals (image modal, etc.) */
     .modal, .video-modal {
       display: none;
       position: fixed;
@@ -858,6 +849,22 @@
     </div>
   </div>
 
+  <!-- Inline Upload Form (hidden by default) -->
+  <div class="inline-upload-form" id="inlineUploadForm">
+    <div class="close-upload-form" onclick="closeUploadForm()">&times;</div>
+    <h3>Upload Your Video</h3>
+    <input type="text" id="uploadTitle" placeholder="Video Title" required>
+    <input type="text" id="uploadThumb" placeholder="Thumbnail Image URL" required>
+    <input type="text" id="uploadEmbed" placeholder="Video URL (YouTube, Facebook, Instagram, etc.)" required>
+    <select id="uploadCategory">
+      <option value="K-Drama">🇰🇷 K-Drama</option>
+      <option value="Song">🎵 Song</option>
+      <option value="Cartoon">📺 Cartoon</option>
+      <option value="Other">✨ Other</option>
+    </select>
+    <button id="publishVideoBtn">Publish Video</button>
+  </div>
+
   <!-- Category Bar -->
   <div class="category-bar" id="categoryBar">
     <div class="category-chip active" data-category="all">All</div>
@@ -982,24 +989,6 @@
     </footer>
   </div>
 
-  <!-- Upload Modal -->
-  <div id="uploadModal" class="upload-modal">
-    <div class="modal-content">
-      <span class="close-modal-btn" onclick="closeUploadModal()">&times;</span>
-      <h3>Upload Your Video</h3>
-      <input type="text" id="uploadTitle" placeholder="Video Title" required>
-      <input type="text" id="uploadThumb" placeholder="Thumbnail Image URL" required>
-      <input type="text" id="uploadEmbed" placeholder="Video URL (YouTube, Facebook, Instagram, etc.)" required>
-      <select id="uploadCategory">
-        <option value="K-Drama">🇰🇷 K-Drama</option>
-        <option value="Song">🎵 Song</option>
-        <option value="Cartoon">📺 Cartoon</option>
-        <option value="Other">✨ Other</option>
-      </select>
-      <button id="publishVideoBtn">Publish Video</button>
-    </div>
-  </div>
-
   <!-- Image Modal (for gallery images) -->
   <div id="imageModal" class="modal">
     <div class="modal-content">
@@ -1118,7 +1107,6 @@
 
       // ---------- AUTH ----------
       let currentUser = null;
-      let pendingUpload = false;
       let toastTimeout = null;
       let passwordErrorTimeout = null;
       let currentMediaType = null; // 'video' or 'image'
@@ -1178,10 +1166,6 @@
             pic: user.photoURL,
             email: user.email
           };
-          if (pendingUpload) {
-            pendingUpload = false;
-            openUploadModal();
-          }
         } else {
           currentUser = null;
         }
@@ -1204,6 +1188,7 @@
           privateVaultContent.style.display = 'none';
           vaultPasswordInline.value = '';
           clearPasswordError();
+          closeUploadForm(); // close upload form if open
         }).catch(err => console.error('Logout error:', err));
       };
 
@@ -1525,44 +1510,35 @@
         }
       };
 
-      // ---------- UPLOAD MODAL (FIXED) ----------
+      // ---------- INLINE UPLOAD FORM (no lightbox) ----------
       function convertToEmbedUrl(url) {
         if (!url) return url;
-        // If it's already an embed URL, return as is
         if (url.includes('youtube.com/embed/')) return url;
-        // Convert youtube.com/watch?v=ID
         let match = url.match(/[?&]v=([^&]+)/);
         if (match) {
           return `https://www.youtube.com/embed/${match[1]}`;
         }
-        // Convert youtu.be/ID
         match = url.match(/youtu\.be\/([^?&]+)/);
         if (match) {
           return `https://www.youtube.com/embed/${match[1]}`;
         }
-        // For other platforms (Facebook, Instagram, etc.), keep original URL
-        // The iframe might not work, but we'll let it be.
         return url;
       }
 
-      function openUploadModal() {
-        if (!currentUser) {
-          showNotif('⚠️ Access Denied! Please Login to Upload.', true, 3000);
-          pendingUpload = true;
-          return;
-        }
-        const modal = document.getElementById('uploadModal');
-        if (modal) {
-          modal.style.display = 'flex';
-          document.body.style.overflow = 'hidden';
+      function openUploadForm() {
+        const form = document.getElementById('inlineUploadForm');
+        if (form) {
+          form.style.display = 'block';
+          // Scroll to the form smoothly
+          form.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
       }
 
-      window.closeUploadModal = function() {
-        const modal = document.getElementById('uploadModal');
-        if (modal) {
-          modal.style.display = 'none';
-          document.body.style.overflow = '';
+      window.closeUploadForm = function() {
+        const form = document.getElementById('inlineUploadForm');
+        if (form) {
+          form.style.display = 'none';
+          // Clear fields
           document.getElementById('uploadTitle').value = '';
           document.getElementById('uploadThumb').value = '';
           document.getElementById('uploadEmbed').value = '';
@@ -1571,6 +1547,12 @@
       };
 
       document.getElementById('publishVideoBtn').addEventListener('click', async () => {
+        // Check login first
+        if (!currentUser) {
+          showNotif('⚠️ Access Denied! Please Login to Upload.', true, 3000);
+          return;
+        }
+
         let title = document.getElementById('uploadTitle').value.trim();
         let thumb = document.getElementById('uploadThumb').value.trim();
         let embed = document.getElementById('uploadEmbed').value.trim();
@@ -1581,7 +1563,6 @@
           return;
         }
 
-        // Convert to embed URL if needed
         const finalEmbedUrl = convertToEmbedUrl(embed);
 
         try {
@@ -1595,7 +1576,7 @@
             userId: currentUser.email || currentUser.uid
           });
           showNotif('Video published successfully!');
-          closeUploadModal();
+          closeUploadForm();
         } catch (error) {
           console.error('Upload error:', error);
           showNotif('Upload failed', true);
@@ -1621,29 +1602,18 @@
         });
       });
 
-      // ---------- HEADER ADD BUTTON (FIXED) ----------
-const headerAddBtn = document.getElementById('headerAddBtn');
-if (headerAddBtn) {
-    headerAddBtn.onclick = function() {
-        const user = firebase.auth().currentUser;
-        if (!user) {
-            showNotif('⚠️ Access Denied! Please Login to Upload.', true, 3000);
-            return;
-        }
-        const modal = document.getElementById('uploadModal');
-        if (modal) {
-            modal.style.display = 'flex';
-            document.body.style.overflow = 'hidden';
-        }
-    };
-}
+      // ---------- HEADER ADD BUTTON (opens inline form, not modal) ----------
+      const headerAddBtn = document.getElementById('headerAddBtn');
+      if (headerAddBtn) {
+        headerAddBtn.addEventListener('click', openUploadForm);
+      }
 
       // ---------- SCROLL ----------
       window.closeAllOverlays = function() {
         if (document.getElementById('inlinePlayer').style.display === 'block') closeInlinePlayer();
         if (document.getElementById('sideMenu').classList.contains('open')) toggleMenu();
         if (document.getElementById('imageModal').style.display === 'flex') document.getElementById('imageModal').style.display = 'none';
-        if (document.getElementById('uploadModal').style.display === 'flex') closeUploadModal();
+        // Do not close the upload form automatically
       };
 
       window.toggleMenu = () => document.getElementById('sideMenu').classList.toggle('open');
