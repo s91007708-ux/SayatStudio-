@@ -333,7 +333,7 @@
       color: var(--text-primary);
     }
 
-    /* Video grids */
+    /* Video grids - no transform effects to prevent blinking, with hardware acceleration */
     .video-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
@@ -346,15 +346,17 @@
       border: var(--border-light);
       border-radius: 28px;
       overflow: hidden;
-      transition: transform 0.2s, box-shadow 0.2s;
       cursor: pointer;
+      transform: translateZ(0); /* hardware acceleration */
+      will-change: transform;
     }
-    .video-card:hover { transform: translateY(-6px) scale(1.02); box-shadow: 0 15px 30px rgba(0,0,0,0.2); }
     .video-card img {
       width: 100%;
       aspect-ratio: 16/9;
       object-fit: cover;
       border-radius: 20px 20px 0 0;
+      background-color: #e0e0e0; /* light grey background while loading */
+      transition: opacity 0.2s ease;
     }
     .video-info {
       padding: 0.8rem;
@@ -389,8 +391,25 @@
     .video-actions button:hover {
       color: var(--accent);
     }
-    .like-btn.liked i {
-      color: #ff69b4 !important; /* pink when liked */
+    /* Like heart styles */
+    .fa-heart {
+      color: #000000;
+      transition: color 0.2s ease;
+    }
+    .fa-heart.liked {
+      color: #ff69b4 !important;
+    }
+    /* Error message below video card */
+    .like-error {
+      color: #ff4757;
+      font-size: 0.75rem;
+      margin-top: 0.3rem;
+      text-align: center;
+      animation: fadeIn 0.2s;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-5px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
     /* Gallery grid */
@@ -406,9 +425,8 @@
       border-radius: 28px;
       overflow: hidden;
       box-shadow: var(--shadow);
-      transition: transform 0.2s, box-shadow 0.2s;
+      cursor: pointer;
     }
-    .gallery-card:hover { transform: translateY(-6px) scale(1.02); box-shadow: 0 15px 30px rgba(0,0,0,0.2); }
     .gallery-card img {
       width: 100%;
       height: 200px;
@@ -447,6 +465,7 @@
       transition: transform 0.2s;
       cursor: pointer;
     }
+    .book-card:hover { transform: translateY(-4px); }
     .book-card img {
       width: 130px;
       height: 180px;
@@ -464,7 +483,7 @@
       margin-top: 1rem;
     }
 
-    /* Inline player (for videos and images) */
+    /* Inline player */
     .inline-player {
       display: none;
       width: 100%;
@@ -475,11 +494,6 @@
       position: relative;
       backdrop-filter: blur(20px);
       border: var(--border-light);
-      transition: opacity 0.3s ease, visibility 0.3s ease;
-    }
-    .inline-player.fade-out {
-      opacity: 0;
-      visibility: hidden;
     }
     .inline-player .close-player {
       position: absolute;
@@ -517,7 +531,7 @@
       margin: 0 auto;
     }
 
-    /* Shaking toast (top center) */
+    /* Shaking toast (top center) - keep for other errors */
     @keyframes shake {
       0%, 100% { transform: translateX(0); }
       25% { transform: translateX(-5px); }
@@ -550,7 +564,7 @@
       animation: shake 0.4s ease-in-out;
     }
 
-    /* Inline upload form (no lightbox) */
+    /* Inline upload form */
     .inline-upload-form {
       display: none;
       background: var(--surface);
@@ -597,25 +611,8 @@
       cursor: pointer;
       color: var(--text-primary);
     }
-    /* লাইক বাটনের স্টাইল (কালো থেকে পিঙ্ক) */
-.fa-heart {
-    color: black; /* ডিফল্ট কালো */
-    transition: color 0.3s ease, transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    cursor: pointer;
-}
 
-.fa-heart.liked {
-    color: #FF2D55 !important; /* লাইক দিলে পিঙ্ক হবে */
-    transform: scale(1.2); /* সামান্য বড় হবে */
-}
-
-/* ব্লিংকিং বা ঝিলিক মারা বন্ধ করতে স্মুথ ট্রানজিশন */
-.video-card {
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    will-change: transform;
-    backface-visibility: hidden;
-}
-  /* Other modals (image modal, etc.) */
+    /* Other modals */
     .modal, .video-modal {
       display: none;
       position: fixed;
@@ -827,10 +824,6 @@
       text-align: center;
       animation: fadeIn 0.3s;
     }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(-5px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
 
     .switch { position: relative; display: inline-block; width: 50px; height: 24px; background: grey; border-radius: 34px; }
     .switch input { opacity:0; width:0; height:0; }
@@ -871,8 +864,8 @@
     <div class="close-upload-form" onclick="closeUploadForm()">&times;</div>
     <h3>Upload Your Video</h3>
     <input type="text" id="uploadTitle" placeholder="Video Title" required>
-<input type="text" id="uploadThumb" placeholder="Thumbnail Image URL (optional)">
-    <input type="text" id="uploadEmbed" placeholder="Video URL (YouTube, Facebook, Instagram, etc.)" required>
+    <input type="text" id="uploadThumb" placeholder="Thumbnail Image URL (optional)">
+    <input type="text" id="uploadEmbed" placeholder="Video URL (YouTube, Google Drive, etc.)" required>
     <select id="uploadCategory">
       <option value="K-Drama">🇰🇷 K-Drama</option>
       <option value="Song">🎵 Song</option>
@@ -963,7 +956,7 @@
         <div class="video-grid" id="userVideosGrid"></div>
       </section>
 
-      <!-- Static Videos (Korean Drama & Classics, without the two removed) -->
+      <!-- Static Videos (Korean Drama & Classics) -->
       <section id="staticVideos" class="reveal">
         <h2><i class="fas fa-tv"></i> Korean Drama & Classics (28+)</h2>
         <div class="video-grid" id="staticVideosGrid"></div>
@@ -1041,21 +1034,7 @@
       const auth = firebase.auth();
       const provider = new firebase.auth.GoogleAuthProvider();
       const db = firebase.firestore();
-// Google Drive Thumbnail Generator Function
-function getThumbnail(url) {
-    if (url && url.includes('drive.google.com')) {
-        const fileId = url.split('/d/')[1]?.split('/')[0] || url.split('id=')[1]?.split('&')[0];
-        return `https://drive.google.com/thumbnail?id=${fileId}&sz=w800`;
-    }
-    // YouTube-এর জন্য অটো থাম্বনেইল লজিক
-    if (url && (url.includes('youtube.com') || url.includes('youtu.be'))) {
-        let videoId = "";
-        if (url.includes('v=')) { videoId = url.split('v=')[1].split('&')[0]; }
-        else { videoId = url.split('/').pop().split('?')[0]; }
-        return `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
-    }
-    return url;
-}
+
       // ---------- CONSTANTS ----------
       const WHATSAPP_NUMBER = '919734398907';
       const AMAZON_BOOK_LINK = 'https://amzn.in/d/0aTloxFO'; 
@@ -1077,7 +1056,7 @@ function getThumbnail(url) {
       const PRIVATE_VIDEO_ID = '1rpHmEev99eQRBH8_L6JkQf_khXvLhT3j';
       const BOOK_COVER_ID = '14Ro1TjqU4EtPkZ8cs8fyZYpKdwmi5AvB';
 
-      // Static videos – full 30 originally, but we remove "K-Drama 1" and "Song 1" (indices 0 and 12)
+      // Static videos – full 30 originally, but we remove "K-Drama 1" and "Song 1"
       const staticVideoData = [
         { title: 'K-Drama 2', embedId: '1RPyQdl7znk', category: 'K-Drama' },
         { title: 'K-Drama 3', embedId: 'gRfQ6F-wOZ0', category: 'K-Drama' },
@@ -1139,7 +1118,11 @@ function getThumbnail(url) {
       let currentUser = null;
       let toastTimeout = null;
       let passwordErrorTimeout = null;
-      let currentMediaType = null; // 'video' or 'image'
+      let currentMediaType = null;
+
+      // DOM element references
+      const userVideosGrid = document.getElementById('userVideosGrid');
+      let videoCardMap = new Map(); // id -> DOM element
 
       const loader = document.getElementById('loader');
       window.addEventListener('load', () => document.body.classList.add('loaded'));
@@ -1194,7 +1177,8 @@ function getThumbnail(url) {
           currentUser = {
             name: user.displayName,
             pic: user.photoURL,
-            email: user.email
+            email: user.email,
+            uid: user.uid
           };
         } else {
           currentUser = null;
@@ -1257,20 +1241,7 @@ function getThumbnail(url) {
         if (passwordErrorTimeout) clearTimeout(passwordErrorTimeout);
         vaultPasswordError.innerHTML = '';
       }
-// এই কোডটি ১২৪৩ নম্বর লাইনে বসান
-function getThumbnail(url) {
-    if (url && url.includes('drive.google.com')) {
-        const fileId = url.split('/d/')[1]?.split('/')[0] || url.split('id=')[1]?.split('&')[0];
-        return `https://drive.google.com/thumbnail?id=${fileId}&sz=w800`;
-    }
-    if (url && (url.includes('youtube.com') || url.includes('youtu.be'))) {
-        let videoId = "";
-        if (url.includes('v=')) { videoId = url.split('v=')[1].split('&')[0]; }
-        else { videoId = url.split('/').pop().split('?')[0]; }
-        return `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
-    }
-    return url;
-}
+
       // ---------- GALLERY, BOOKS ----------
       function renderGallery() {
         const grid = document.getElementById('galleryGrid');
@@ -1278,7 +1249,7 @@ function getThumbnail(url) {
         galleryImages.forEach((img, idx) => {
           const card = document.createElement('div');
           card.className = 'gallery-card';
-          card.innerHTML = `<img src="${img.url}" alt="${img.title}" draggable="false">
+          card.innerHTML = `<img src="${img.url}" alt="${img.title}" draggable="false" loading="lazy">
             <div class="card-info"><span><strong>${img.title}</strong></span>
             <button class="order-similar-btn" data-index="${idx}"><i class="fab fa-whatsapp"></i> order</button></div>`;
           card.querySelector('.order-similar-btn').addEventListener('click', (e) => {
@@ -1308,7 +1279,7 @@ function getThumbnail(url) {
         books.forEach(b => {
           const card = document.createElement('div');
           card.className = 'book-card';
-          card.innerHTML = `<img src="${b.cover}" onerror="this.src='https://via.placeholder.com/200x280?text=Cover'" draggable="false"><h3>${b.title}</h3><p>${b.desc}</p><a href="${AMAZON_BOOK_LINK}" target="_self" class="buy-btn">Buy now</a>`;
+          card.innerHTML = `<img src="${b.cover}" onerror="this.src='https://via.placeholder.com/200x280?text=Cover'" draggable="false" loading="lazy"><h3>${b.title}</h3><p>${b.desc}</p><a href="${AMAZON_BOOK_LINK}" target="_self" class="buy-btn">Buy now</a>`;
           card.addEventListener('click', (e) => {
             if (e.target.classList.contains('buy-btn')) return;
             window.open(AMAZON_BOOK_LINK, '_self');
@@ -1317,33 +1288,35 @@ function getThumbnail(url) {
         });
       }
 
-      // ---------- VIDEO SECTIONS ----------
+      // ---------- VIDEO SECTIONS (optimized to prevent blinking) ----------
       let userVideos = [];
       let currentSearchTerm = '';
       let currentCategory = 'all';
 
       function fetchUserVideos() {
         db.collection('videos').orderBy('createdAt', 'desc').onSnapshot(snapshot => {
-          userVideos = [];
+          const newVideos = [];
           snapshot.forEach(doc => {
             const data = doc.data();
-            userVideos.push({
+            newVideos.push({
               id: doc.id,
               title: data.title,
               embedUrl: data.embedUrl,
               thumbnail: data.thumbnail,
               category: data.category,
               likes: data.likes || 0,
+              likedBy: data.likedBy || [],
               userId: data.userId
             });
           });
-          renderUserVideos();
+          userVideos = newVideos;
+          updateUserVideosDOM();
         }, error => {
           console.error('Error fetching videos:', error);
         });
       }
 
-      function renderUserVideos() {
+      function updateUserVideosDOM() {
         let filtered = [...userVideos];
         if (currentCategory !== 'all') {
           filtered = filtered.filter(v => v.category === currentCategory);
@@ -1352,42 +1325,153 @@ function getThumbnail(url) {
           const filterLower = currentSearchTerm.toLowerCase();
           filtered = filtered.filter(v => v.title.toLowerCase().includes(filterLower));
         }
-        const grid = document.getElementById('userVideosGrid');
-        grid.innerHTML = '';
-        filtered.forEach(video => {
-          const card = document.createElement('div');
-          card.className = 'video-card';
-          card.innerHTML = `
-            <img src="${video.thumbnail}" alt="${video.title}" onerror="this.src='${DEFAULT_THUMBNAIL}'">
-            <div class="video-info">
-              <div class="video-title">
-                <span>${video.title}</span>
-                <span class="video-category">${video.category || 'Uncategorized'}</span>
-              </div>
-              <div class="video-actions">
-                <button class="like-btn" data-id="${video.id}"><i class="fas fa-heart"></i> <span class="like-count">${video.likes}</span></button>
-                <button class="share-btn" data-embed="${video.embedUrl}"><i class="fas fa-share-alt"></i> Share</button>
-              </div>
-            </div>
-          `;
-          card.addEventListener('click', (e) => {
-            if (e.target.closest('.like-btn') || e.target.closest('.share-btn')) return;
-            playVideoInline(video.embedUrl);
-          });
-          const likeBtn = card.querySelector('.like-btn');
-          likeBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            likeUserVideo(video.id);
-            // Add visual pink color immediately
-            likeBtn.classList.add('liked');
-          });
-          const shareBtn = card.querySelector('.share-btn');
-          shareBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            shareVideo(video.embedUrl);
-          });
-          grid.appendChild(card);
+
+        // Remove cards that are no longer in filtered list
+        const existingIds = new Set(filtered.map(v => v.id));
+        for (let [id, element] of videoCardMap.entries()) {
+          if (!existingIds.has(id)) {
+            element.remove();
+            videoCardMap.delete(id);
+          }
+        }
+
+        // Update or create cards in order
+        filtered.forEach((video, index) => {
+          const existingCard = videoCardMap.get(video.id);
+          if (existingCard) {
+            // Update only like button and count
+            updateVideoCardContent(existingCard, video);
+          } else {
+            // Create new card
+            const card = createVideoCard(video);
+            // Insert at correct position (maintain order)
+            const children = Array.from(userVideosGrid.children);
+            if (index < children.length) {
+              userVideosGrid.insertBefore(card, children[index]);
+            } else {
+              userVideosGrid.appendChild(card);
+            }
+            videoCardMap.set(video.id, card);
+          }
         });
+      }
+
+      function createVideoCard(video) {
+        const isLikedByUser = currentUser && video.likedBy && video.likedBy.includes(currentUser.uid);
+        const card = document.createElement('div');
+        card.className = 'video-card';
+        card.setAttribute('data-id', video.id);
+        card.innerHTML = `
+          <img src="${video.thumbnail}" alt="${video.title}" loading="lazy" onerror="this.src='${DEFAULT_THUMBNAIL}'">
+          <div class="video-info">
+            <div class="video-title">
+              <span>${escapeHtml(video.title)}</span>
+              <span class="video-category">${video.category || 'Uncategorized'}</span>
+            </div>
+            <div class="video-actions">
+              <button class="like-btn"><i class="fas fa-heart ${isLikedByUser ? 'liked' : ''}"></i> <span class="like-count">${video.likes}</span></button>
+              <button class="share-btn"><i class="fas fa-share-alt"></i> Share</button>
+            </div>
+          </div>
+          <div class="like-error" style="display: none;"></div>
+        `;
+        card.addEventListener('click', (e) => {
+          if (e.target.closest('.like-btn') || e.target.closest('.share-btn')) return;
+          playVideoInline(video.embedUrl);
+        });
+        const likeBtn = card.querySelector('.like-btn');
+        likeBtn.addEventListener('click', async (e) => {
+          e.stopPropagation();
+          if (!currentUser) {
+            showLikeError(card, '⚠️ Please login to like videos');
+            return;
+          }
+          await toggleLike(video.id, likeBtn);
+        });
+        const shareBtn = card.querySelector('.share-btn');
+        shareBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          shareVideo(video.embedUrl);
+        });
+        return card;
+      }
+
+      function updateVideoCardContent(card, video) {
+        const isLikedByUser = currentUser && video.likedBy && video.likedBy.includes(currentUser.uid);
+        const heartIcon = card.querySelector('.like-btn i');
+        const likeCountSpan = card.querySelector('.like-count');
+        if (isLikedByUser) {
+          heartIcon.classList.add('liked');
+        } else {
+          heartIcon.classList.remove('liked');
+        }
+        likeCountSpan.textContent = video.likes;
+        // Optionally update thumbnail if changed (rare)
+        const img = card.querySelector('img');
+        if (img.src !== video.thumbnail && video.thumbnail) {
+          img.src = video.thumbnail;
+        }
+      }
+
+      function showLikeError(card, message) {
+        let errorDiv = card.querySelector('.like-error');
+        if (!errorDiv) {
+          errorDiv = document.createElement('div');
+          errorDiv.className = 'like-error';
+          card.appendChild(errorDiv);
+        }
+        errorDiv.textContent = message;
+        errorDiv.style.display = 'block';
+        setTimeout(() => {
+          errorDiv.style.display = 'none';
+        }, 3000);
+      }
+
+      function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/[&<>]/g, function(m) {
+          if (m === '&') return '&amp;';
+          if (m === '<') return '&lt;';
+          if (m === '>') return '&gt;';
+          return m;
+        });
+      }
+
+      async function toggleLike(videoId, likeBtnElement) {
+        const videoRef = db.collection('videos').doc(videoId);
+        const userId = currentUser.uid;
+        try {
+          await db.runTransaction(async (transaction) => {
+            const doc = await transaction.get(videoRef);
+            if (!doc.exists) throw new Error('Document does not exist');
+            const data = doc.data();
+            const likedBy = data.likedBy || [];
+            const isLiked = likedBy.includes(userId);
+            let newLikes = data.likes || 0;
+            let newLikedBy = [...likedBy];
+            if (isLiked) {
+              newLikes--;
+              newLikedBy = newLikedBy.filter(uid => uid !== userId);
+            } else {
+              newLikes++;
+              newLikedBy.push(userId);
+            }
+            transaction.update(videoRef, { likes: newLikes, likedBy: newLikedBy });
+            // Update UI immediately
+            const heartIcon = likeBtnElement.querySelector('i');
+            const likeCountSpan = likeBtnElement.querySelector('.like-count');
+            if (isLiked) {
+              heartIcon.classList.remove('liked');
+              likeCountSpan.textContent = newLikes;
+            } else {
+              heartIcon.classList.add('liked');
+              likeCountSpan.textContent = newLikes;
+            }
+          });
+        } catch (error) {
+          console.error('Like error:', error);
+          showNotif('Could not update like', true);
+        }
       }
 
       function renderStaticVideos() {
@@ -1397,7 +1481,7 @@ function getThumbnail(url) {
           const card = document.createElement('div');
           card.className = 'video-card';
           card.innerHTML = `
-            <img src="${video.thumbnail}" alt="${video.title}" onerror="this.src='${DEFAULT_THUMBNAIL}'">
+            <img src="${video.thumbnail}" alt="${video.title}" loading="lazy" onerror="this.src='${DEFAULT_THUMBNAIL}'">
             <div class="video-info">
               <div class="video-title">
                 <span>${video.title}</span>
@@ -1418,7 +1502,6 @@ function getThumbnail(url) {
         img.style.display = 'none';
         iframe.src = embedUrl + '?autoplay=1';
         player.style.display = 'block';
-        player.classList.remove('fade-out');
         player.scrollIntoView({ behavior: 'smooth', block: 'start' });
         currentMediaType = 'video';
       }
@@ -1431,7 +1514,6 @@ function getThumbnail(url) {
         img.src = imgSrc;
         img.style.display = 'block';
         player.style.display = 'block';
-        player.classList.remove('fade-out');
         player.scrollIntoView({ behavior: 'smooth', block: 'start' });
         currentMediaType = 'image';
       }
@@ -1444,12 +1526,7 @@ function getThumbnail(url) {
         img.src = '';
         iframe.style.display = 'none';
         img.style.display = 'none';
-        player.classList.add('fade-out');
-        setTimeout(() => {
-          player.style.display = 'none';
-          player.classList.remove('fade-out');
-        }, 300);
-
+        player.style.display = 'none';
         if (currentMediaType === 'video') {
           const videosSection = document.getElementById('videos');
           if (videosSection) {
@@ -1471,24 +1548,6 @@ function getThumbnail(url) {
       }
 
       window.closeInlinePlayer = closeInlinePlayer;
-
-      function likeUserVideo(videoId) {
-        if (!currentUser) {
-          showNotif('Please login to like videos', true);
-          return;
-        }
-        const videoRef = db.collection('videos').doc(videoId);
-        db.runTransaction(transaction => {
-          return transaction.get(videoRef).then(doc => {
-            if (!doc.exists) throw new Error('Document does not exist');
-            const newLikes = (doc.data().likes || 0) + 1;
-            transaction.update(videoRef, { likes: newLikes });
-          });
-        }).catch(error => {
-          console.error('Error liking video:', error);
-          showNotif('Could not like video');
-        });
-      }
 
       function shareVideo(embedUrl) {
         const videoId = embedUrl.split('/embed/')[1]?.split('?')[0];
@@ -1537,6 +1596,7 @@ function getThumbnail(url) {
             const img = document.createElement('img');
             img.src = `https://drive.google.com/thumbnail?id=${id}&sz=w400`;
             img.alt = 'private';
+            img.loading = 'lazy';
             img.onerror = function() {
               this.style.display = 'none';
               const fallback = document.createElement('div');
@@ -1555,7 +1615,7 @@ function getThumbnail(url) {
         }
       };
 
-      // ---------- INLINE UPLOAD FORM with automatic thumbnail logic ----------
+      // ---------- INLINE UPLOAD FORM ----------
       function convertToEmbedUrl(url) {
         if (!url) return url;
         if (url.includes('youtube.com/embed/')) return url;
@@ -1584,19 +1644,21 @@ function getThumbnail(url) {
         if (match) {
           return `https://drive.google.com/thumbnail?id=${match[1]}&sz=w800`;
         }
+        const idMatch = thumbUrl.match(/[?&]id=([^&]+)/);
+        if (idMatch) {
+          return `https://drive.google.com/thumbnail?id=${idMatch[1]}&sz=w800`;
+        }
         return thumbUrl;
       }
 
       function generateThumbnail(embedUrl, userThumbUrl) {
         if (userThumbUrl && userThumbUrl.trim() !== '') {
           let processedThumb = userThumbUrl.trim();
-          // If it's a Google Drive link, convert to direct thumbnail
           if (processedThumb.includes('drive.google.com')) {
             processedThumb = convertGoogleDriveThumbnail(processedThumb);
           }
           return processedThumb;
         }
-        // No user thumbnail: try to extract YouTube ID
         const youtubeId = extractYouTubeId(embedUrl);
         if (youtubeId) {
           return `https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg`;
@@ -1633,12 +1695,7 @@ function getThumbnail(url) {
         let thumb = document.getElementById('uploadThumb').value.trim();
         let embed = document.getElementById('uploadEmbed').value.trim();
         const category = document.getElementById('uploadCategory').value;
-    // --- অটো থাম্বনেইল লজিক এখানে শুরু ---
-    // যদি ইউজার থাম্বনেইল না দেয়, তবে ভিডিও লিঙ্ক থেকে অটো থাম্বনেইল জেনারেট হবে
-    const finalThumb = generateThumbnail(embed, thumb); 
-    // ইউটিউব লিঙ্ককে এম্বেড ফরম্যাটে রূপান্তর
-    const finalEmbed = convertToEmbedUrl(embed); 
-    // --- অটো থাম্বনেইল লজিক এখানে শেষ ---
+
         if (!title || !embed) {
           showNotif('Please fill all fields (Title and Video URL are required)', true);
           return;
@@ -1647,23 +1704,19 @@ function getThumbnail(url) {
         const finalEmbedUrl = convertToEmbedUrl(embed);
         let finalThumbnail = generateThumbnail(finalEmbedUrl, thumb);
 
-        // Validate thumbnail URL (optional, but we set a fallback on error later)
-        // We'll rely on the onerror attribute in the img tag to fallback to default.
-
-            try {
-            await db.collection('videos').add({
-        title: title,
-        thumbnail: finalThumbnail,
-        embedUrl: finalEmbedUrl,
-        category: category,
-        likes: 0,
-        likedBy: [],
-        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-        userId: currentUser.email || currentUser.uid
-      });
-      showNotif('✅ Video published successfully!');
-      closeUploadForm(); // আপলোড শেষ হলে ফর্মটি বন্ধ হয়ে যাবে
-         closeUploadForm();
+        try {
+          await db.collection('videos').add({
+            title: title,
+            thumbnail: finalThumbnail,
+            embedUrl: finalEmbedUrl,
+            category: category,
+            likes: 0,
+            likedBy: [],
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            userId: currentUser.email || currentUser.uid
+          });
+          showNotif('✅ Video published successfully!');
+          closeUploadForm();
         } catch (error) {
           console.error('Upload error:', error);
           showNotif('Upload failed', true);
@@ -1673,7 +1726,7 @@ function getThumbnail(url) {
       // ---------- SEARCH & CATEGORY ----------
       function updateGlobalSearch() {
         currentSearchTerm = document.getElementById('globalSearchInput').value;
-        renderUserVideos();
+        updateUserVideosDOM();
       }
       document.getElementById('globalSearchBtn').addEventListener('click', updateGlobalSearch);
       document.getElementById('globalSearchInput').addEventListener('keyup', (e) => {
@@ -1685,7 +1738,7 @@ function getThumbnail(url) {
           document.querySelectorAll('.category-chip').forEach(c => c.classList.remove('active'));
           chip.classList.add('active');
           currentCategory = chip.getAttribute('data-category');
-          renderUserVideos();
+          updateUserVideosDOM();
         });
       });
 
