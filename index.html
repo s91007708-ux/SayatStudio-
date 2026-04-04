@@ -854,7 +854,7 @@
     <div class="close-upload-form" onclick="closeUploadForm()">&times;</div>
     <h3>Upload Your Video</h3>
     <input type="text" id="uploadTitle" placeholder="Video Title" required>
-    <input type="text" id="uploadThumb" placeholder="Thumbnail Image URL (optional)" required>
+    placeholder="Thumbnail Image URL (optional)"> 
     <input type="text" id="uploadEmbed" placeholder="Video URL (YouTube, Facebook, Instagram, etc.)" required>
     <select id="uploadCategory">
       <option value="K-Drama">🇰🇷 K-Drama</option>
@@ -1616,7 +1616,12 @@ function getThumbnail(url) {
         let thumb = document.getElementById('uploadThumb').value.trim();
         let embed = document.getElementById('uploadEmbed').value.trim();
         const category = document.getElementById('uploadCategory').value;
-
+    // --- অটো থাম্বনেইল লজিক এখানে শুরু ---
+    // যদি ইউজার থাম্বনেইল না দেয়, তবে ভিডিও লিঙ্ক থেকে অটো থাম্বনেইল জেনারেট হবে
+    const finalThumb = generateThumbnail(embed, thumb); 
+    // ইউটিউব লিঙ্ককে এম্বেড ফরম্যাটে রূপান্তর
+    const finalEmbed = convertToEmbedUrl(embed); 
+    // --- অটো থাম্বনেইল লজিক এখানে শেষ ---
         if (!title || !embed) {
           showNotif('Please fill all fields (Title and Video URL are required)', true);
           return;
@@ -1628,18 +1633,19 @@ function getThumbnail(url) {
         // Validate thumbnail URL (optional, but we set a fallback on error later)
         // We'll rely on the onerror attribute in the img tag to fallback to default.
 
-        try {
-          await db.collection('videos').add({
-            title: title,
-            thumbnail: finalThumbnail,
-            embedUrl: finalEmbedUrl,
-            category: category,
-            likes: 0,
-            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-            userId: currentUser.email || currentUser.uid
-          });
-          showNotif('Video published successfully!');
-          closeUploadForm();
+            try {
+      await db.collection('videos').add({
+        title: title,
+        thumbnail: finalThumbnail, // এখানে thumb এর বদলে finalThumbnail হবে
+        embedUrl: finalEmbedUrl,   // এখানে embed এর বদলে finalEmbedUrl হবে
+        category: category,
+        likes: 0,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        userId: currentUser.email || currentUser.uid
+      });
+      showNotif('✅ Video published successfully!');
+      closeUploadForm(); // আপলোড শেষ হলে ফর্মটি বন্ধ হয়ে যাবে
+         closeUploadForm();
         } catch (error) {
           console.error('Upload error:', error);
           showNotif('Upload failed', true);
