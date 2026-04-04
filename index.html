@@ -597,8 +597,25 @@
       cursor: pointer;
       color: var(--text-primary);
     }
+    /* লাইক বাটনের স্টাইল (কালো থেকে পিঙ্ক) */
+.fa-heart {
+    color: black; /* ডিফল্ট কালো */
+    transition: color 0.3s ease, transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    cursor: pointer;
+}
 
-    /* Other modals (image modal, etc.) */
+.fa-heart.liked {
+    color: #FF2D55 !important; /* লাইক দিলে পিঙ্ক হবে */
+    transform: scale(1.2); /* সামান্য বড় হবে */
+}
+
+/* ব্লিংকিং বা ঝিলিক মারা বন্ধ করতে স্মুথ ট্রানজিশন */
+.video-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    will-change: transform;
+    backface-visibility: hidden;
+}
+  /* Other modals (image modal, etc.) */
     .modal, .video-modal {
       display: none;
       position: fixed;
@@ -1634,12 +1651,13 @@ function getThumbnail(url) {
         // We'll rely on the onerror attribute in the img tag to fallback to default.
 
             try {
-      await db.collection('videos').add({
+            await db.collection('videos').add({
         title: title,
-        thumbnail: finalThumbnail, // এখানে thumb এর বদলে finalThumbnail হবে
-        embedUrl: finalEmbedUrl,   // এখানে embed এর বদলে finalEmbedUrl হবে
+        thumbnail: finalThumbnail,
+        embedUrl: finalEmbedUrl,
         category: category,
         likes: 0,
+        likedBy: [],
         createdAt: firebase.firestore.FieldValue.serverTimestamp(),
         userId: currentUser.email || currentUser.uid
       });
