@@ -1510,7 +1510,8 @@
 
     iframe.style.display = 'block';
     img.style.display = 'none';
-    iframe.src = embedUrl + (embedUrl.includes('?') ? '&' : '?') + 'autoplay=1';
+        iframe.src = (embedUrl.includes('drive.google.com') && !embedUrl.includes('preview')) ? embedUrl.replace('/view', '/preview') : embedUrl + (embedUrl.includes('?') ? '&' : '?') + 'autoplay=1';
+
     
     // অরিজিনাল লিঙ্ক সেট করা (YouTube বা Drive এর জন্য)
     let originalUrl = embedUrl.replace('/preview', '/view').replace('/embed/', '/watch?v=');
