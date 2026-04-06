@@ -1638,15 +1638,29 @@
       function convertToEmbedUrl(url) {
     if (!url) return url;
     url = url.trim();
-    // YouTube
+
+    // YouTube Fix
     if (url.includes('youtube.com/watch?v=')) return url.replace('watch?v=', 'embed/').split('&')[0];
     if (url.includes('youtu.be/')) return url.replace('youtu.be/', 'youtube.com/embed/').split('?')[0];
     
-    // Google Drive Video
+    // Google Drive Fix
     if (url.includes('drive.google.com')) {
         let driveId = url.match(/\/file\/d\/([^\/]+)/) || url.match(/[?&]id=([^&]+)/);
         if (driveId) return `https://drive.google.com/file/d/${driveId[1]}/preview`;
     }
+
+    // Facebook Video/Reels/Share Fix
+    if (url.includes('facebook.com') || url.includes('fb.watch')) {
+        return `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(url)}&show_text=0&width=560`;
+    }
+
+    // Instagram Post/Reels/Reel Fix
+    if (url.includes('instagram.com/p/') || url.includes('instagram.com/reels/') || url.includes('instagram.com/reel/')) {
+        let cleanUrl = url.split('?')[0]; 
+        if (!cleanUrl.endsWith('/')) cleanUrl += '/';
+        return `${cleanUrl}embed`;
+    }
+
     return url;
 }
 
